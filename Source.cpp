@@ -57,6 +57,7 @@ public:
         if (catchCallback) catchCallback();
     }
 };
+
 shared_ptr<SimplePromise> asyncFindPromise(
     const vector<int>& arr,
     function<bool(int)> predicate,
@@ -152,3 +153,33 @@ int main() {
             [](int x) { return x == 5; },
             cancelled
         );
+
+        cout << "Found (await): " << result << endl;
+    }
+    catch (exception& e) {
+        cout << e.what() << endl;
+    }
+
+    cout << "\n=== Cancellation demo ===\n";
+
+    cancelled = false;
+
+    asyncFindCallback(
+        arr,
+        [](int x) { return x == 100; },
+        [](int result) {
+            cout << "Found: " << result << endl;
+        },
+        []() {
+            cout << "Not found\n";
+        },
+        cancelled
+    );
+
+    this_thread::sleep_for(chrono::milliseconds(500));
+    cancelled = true;
+
+    this_thread::sleep_for(chrono::seconds(2));
+
+    return 0;
+}
